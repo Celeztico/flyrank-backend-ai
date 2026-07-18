@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from app.routes.tasks import router as task_router
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from app.utils import validation
 
 app = FastAPI()
 @app.exception_handler(RequestValidationError)
@@ -12,7 +13,7 @@ async def validation_exception_handler(
     return JSONResponse(
         status_code=400,
         content={
-                "error": "Title is required."
+            "error": validation.get_validation_error_message(exc)
         }
     )
 

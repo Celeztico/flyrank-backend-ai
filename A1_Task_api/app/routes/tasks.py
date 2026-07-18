@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models.task import Task, TaskCreate
+from app.models.task import Task, TaskCreate, TaskUpdate
 from app.services import task_service
 
 router = APIRouter(
@@ -34,3 +34,16 @@ def get_task(task_id: int):
 )
 def create_task(task_create: TaskCreate):
     return task_service.create_task(task_create)
+
+@router.put(
+    "/{task_id}",
+    response_model=Task,
+    status_code=201,
+    summary="Update a task",
+    description="Updates an existing task and returns it",
+)
+def update_task(
+    task_id: int,
+    task_update: TaskUpdate
+):
+    return task_service.update_task(task_id, task_update)

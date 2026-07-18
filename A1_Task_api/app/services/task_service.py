@@ -37,5 +37,20 @@ store it in memory, and return it.
     )
 
     tasks.append(new_task)
-    
+
     return new_task
+
+def update_task(
+        task_id: int,
+        task_update: TaskUpdate
+) -> Task:
+    """
+    Update existing task of given id and return it
+    """
+    task = get_task(task_id)
+
+    task.title = task_update.title
+
+    task.done=task_update.done
+
+    return task
