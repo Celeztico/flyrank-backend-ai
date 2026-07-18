@@ -54,3 +54,8 @@ def update_task(
     task.done=task_update.done
 
     return task
+
+def delete_task(task_id: int) -> None:
+    task = get_task(task_id)
+    tasks.remove(task)
+    return

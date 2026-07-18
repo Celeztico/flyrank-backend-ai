@@ -47,3 +47,12 @@ def update_task(
     task_update: TaskUpdate
 ):
     return task_service.update_task(task_id, task_update)
+
+@router.delete(
+    "/{task_id}",
+    status_code=204,
+    summary="Delete a task",
+    description="Deletes an existing task and returns nothing",
+)
+def delete_task(task_id: int):
+    task_service.delete_task(task_id)
