@@ -4,7 +4,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from app.utils import validation
 
-app = FastAPI()
+app = FastAPI(
+    title="Task API",
+    description="A simple RESTful Task Management API built for the FlyRank Backend Internship Assignment.",
+    version="1.0.0",
+)
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request,
