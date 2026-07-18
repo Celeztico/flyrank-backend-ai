@@ -18,5 +18,24 @@ def get_task(task_id: int) -> Task:
             return task
     raise HTTPException(
         status_code=404,
-        detail=f"Task with id {task_id} not found"
+        detail={
+            "error": f"Task with id {task_id} not found"
+        }
     )
+
+def create_task(task_create: TaskCreate) -> Task:
+    """
+    Create a new task, assign it the next available ID,
+store it in memory, and return it.
+    """
+    next_id = max((task.id for task in tasks), default=0)+1
+
+    new_task = Task(
+        id=next_id,
+        title=task_create.title,
+        done=False
+    )
+
+    tasks.append(new_task)
+    
+    return new_task
