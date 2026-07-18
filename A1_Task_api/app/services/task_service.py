@@ -18,5 +18,5 @@ def get_task(task_id: int) -> Task:
             return task
     raise HTTPException(
         status_code=404,
-        details=f"Task with id {task_id} not found"
+        detail=f"Task with id {task_id} not found"
     )
