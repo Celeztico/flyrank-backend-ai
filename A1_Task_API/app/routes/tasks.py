@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from app.models.task import Task, TaskCreate, TaskUpdate
 from app.services import task_service
 
@@ -13,8 +13,17 @@ router = APIRouter(
     summary="Get all tasks",
     description="Returns all tasks stored in memory",
 )
-def get_tasks():
-    return task_service.get_tasks()
+def get_tasks(
+    done: bool | None = Query(
+        default=None,
+        description="Filter tasks by completion status"
+    ),
+    search: str | None = Query(
+        default=None,
+        description="Search tasks by title"
+    )
+):
+    return task_service.get_tasks(done=done, search=search)
 
 @router.get(
     "/{task_id}",

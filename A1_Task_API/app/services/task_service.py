@@ -2,11 +2,19 @@ from fastapi import HTTPException
 from app.data import tasks
 from app.models.task import Task, TaskCreate, TaskUpdate
 
-def get_tasks() -> list[Task]:
+def get_tasks(done: bool | None = None, search: str | None = None) -> list[Task]:
     """
-    Return all tasks
+    Return all tasks, optionally filtered by completion/search
     """
-    return tasks
+    filtered_task= tasks
+    
+    if done is not None:
+        filtered_task = [ task for task in filtered_task if task.done == done ]
+    
+    if search is not None:
+        filtered_task = [ task for task in filtered_task if search.lower() in task.title.lower() ]
+    
+    return filtered_task
 
 def get_task(task_id: int) -> Task:
     """
