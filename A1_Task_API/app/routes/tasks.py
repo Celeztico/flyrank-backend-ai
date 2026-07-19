@@ -34,6 +34,15 @@ def get_tasks(
 def get_stats():
     return task_service.get_stats()
 
+@router.post(
+    "/reset",
+    response_model=list[Task],
+    summary="Create a task",
+    description="Creates a new task and returns it",
+)
+def reset_tasks():
+    return task_service.reset_tasks()
+
 @router.get(
     "/{task_id}",
     response_model=Task,

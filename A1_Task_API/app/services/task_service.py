@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from app.data import tasks
+from app.data import tasks, initial_tasks
 from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 
 def get_tasks(done: bool | None = None, search: str | None = None) -> list[Task]:
@@ -76,3 +76,8 @@ def get_stats() -> TaskStats:
         done=done,
         open= total - done,
     )
+
+def reset_tasks():
+    tasks.clear()
+    tasks.extend(initial_tasks)
+    return tasks
