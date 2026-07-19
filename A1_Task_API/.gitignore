@@ -1,6 +1,14 @@
-# Ignore the virtual environment folder
-venv/
+# Virtual environment
 .venv/
-env/
+venv/
 
-**/__pycache__/
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/

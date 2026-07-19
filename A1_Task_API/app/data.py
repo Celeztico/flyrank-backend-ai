@@ -1,6 +1,7 @@
 from app.models.task import Task
+import copy
 
-tasks = [
+initial_tasks = [
     Task(
         id=1,
         title="Study FastAPI",
@@ -17,3 +18,5 @@ tasks = [
         done=True,
     ),
 ]
+
+tasks = copy.deepcopy(initial_tasks)

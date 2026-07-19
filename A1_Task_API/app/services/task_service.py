@@ -1,12 +1,31 @@
 from fastapi import HTTPException
-from app.data import tasks
-from app.models.task import Task, TaskCreate, TaskUpdate
+from app.data import tasks, initial_tasks
+from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 
-def get_tasks() -> list[Task]:
+def get_tasks(
+    done: bool | None = None,
+    search: str | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+) -> list[Task]:
     """
-    Return all tasks
+    Return tasks, optionally filtered by completion status,
+    search query, and paginated using limit/offset.
     """
-    return tasks
+    filtered_tasks = tasks
+    
+    if done is not None:
+        filtered_tasks = [ task for task in filtered_tasks if task.done == done ]
+    
+    if search is not None:
+        filtered_tasks = [ task for task in filtered_tasks if search.lower() in task.title.lower() ]
+    
+    if limit is not None:
+        filtered_tasks = filtered_tasks[offset:offset+limit]
+    else:
+        filtered_tasks = filtered_tasks[offset:]
+    
+    return filtered_tasks
 
 def get_task(task_id: int) -> Task:
     """
@@ -59,3 +78,17 @@ def delete_task(task_id: int) -> None:
     task = get_task(task_id)
     tasks.remove(task)
     return
+
+def get_stats() -> TaskStats:
+    total = len(tasks)
+    done = len([ task for task in tasks if task.done ])
+    return TaskStats(
+        total=total,
+        done=done,
+        open= total - done,
+    )
+
+def reset_tasks():
+    tasks.clear()
+    tasks.extend(initial_tasks)
+    return tasks
