@@ -16,13 +16,29 @@ Since no database is used, all data exists only while the server is running.
 
 ## Installation & Running
 
-### 1. Install dependencies
+### 1. Create a virtual environment (recommended)
+
+**Windows**
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Linux/macOS**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run the application
+### 3. Run the application
 
 ```bash
 uvicorn app.main:app --reload
