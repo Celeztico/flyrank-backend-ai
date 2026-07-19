@@ -21,9 +21,19 @@ def get_tasks(
     search: str | None = Query(
         default=None,
         description="Search tasks by title"
+    ),
+    limit: int | None = Query(
+        default=None,
+        ge=1,
+        description="Maximum number of tasks to return"
+    ),
+    offset: int = Query(
+        default=0,
+        ge=0,
+        description="Number of tasks to skip"
     )
 ):
-    return task_service.get_tasks(done=done, search=search)
+    return task_service.get_tasks(done=done, search=search, limit=limit, offset=offset)
 
 @router.get(
     "/stats",

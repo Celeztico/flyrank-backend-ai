@@ -2,19 +2,30 @@ from fastapi import HTTPException
 from app.data import tasks, initial_tasks
 from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 
-def get_tasks(done: bool | None = None, search: str | None = None) -> list[Task]:
+def get_tasks(
+    done: bool | None = None,
+    search: str | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+) -> list[Task]:
     """
-    Return all tasks, optionally filtered by completion/search
+    Return tasks, optionally filtered by completion status,
+    search query, and paginated using limit/offset.
     """
-    filtered_task= tasks
+    filtered_tasks = tasks
     
     if done is not None:
-        filtered_task = [ task for task in filtered_task if task.done == done ]
+        filtered_tasks = [ task for task in filtered_tasks if task.done == done ]
     
     if search is not None:
-        filtered_task = [ task for task in filtered_task if search.lower() in task.title.lower() ]
+        filtered_tasks = [ task for task in filtered_tasks if search.lower() in task.title.lower() ]
     
-    return filtered_task
+    if limit is not None:
+        filtered_tasks = filtered_tasks[offset:offset+limit]
+    else:
+        filtered_tasks = filtered_tasks[offset:]
+    
+    return filtered_tasks
 
 def get_task(task_id: int) -> Task:
     """
