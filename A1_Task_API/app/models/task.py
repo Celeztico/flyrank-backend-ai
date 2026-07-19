@@ -20,3 +20,8 @@ class TaskUpdate(BaseModel):
         max_length=100,
     )
     done: bool
+
+class TaskStats(BaseModel):
+    total: int
+    done: int
+    open: int

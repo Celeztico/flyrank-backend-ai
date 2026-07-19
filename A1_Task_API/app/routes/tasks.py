@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from app.models.task import Task, TaskCreate, TaskUpdate
+from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 from app.services import task_service
 
 router = APIRouter(
@@ -26,6 +26,15 @@ def get_tasks(
     return task_service.get_tasks(done=done, search=search)
 
 @router.get(
+    "/stats",
+    response_model=TaskStats,
+    summary="Get task statistics",
+    description="Returns statistics for all tasks stored in memory",
+)
+def get_stats():
+    return task_service.get_stats()
+
+@router.get(
     "/{task_id}",
     response_model=Task,
     summary="Get tasks with id task_id",
@@ -47,7 +56,7 @@ def create_task(task_create: TaskCreate):
 @router.put(
     "/{task_id}",
     response_model=Task,
-    status_code=201,
+    status_code=200,
     summary="Update a task",
     description="Updates an existing task and returns it",
 )
@@ -65,3 +74,4 @@ def update_task(
 )
 def delete_task(task_id: int):
     task_service.delete_task(task_id)
+
