@@ -16,7 +16,11 @@ The goal of these assignments is to build backend systems while following clean 
 │   ├── README.md
 │   └── requirements.txt
 │
-├── A2_...
+├── A2_Task_API_DB/
+│   ├── app/
+│   ├── images/
+│   ├── README.md
+│   └── requirements.txt
 │
 └── README.md
 ```
@@ -30,7 +34,7 @@ Each assignment is self-contained and includes its own source code, documentatio
 | Assignment | Description | Status |
 |------------|-------------|--------|
 | **A1 - Task API** | RESTful CRUD Task Management API built with FastAPI using an in-memory data store. | ✅ Completed |
-| **A2 - ...** | Coming soon | ⏳ |
+| **A2 - Task API with DB** | RESTful CRUD Task Management API built with FastAPI migrated to use an sqlite database. | ✅ Completed |
 | **A3 - ...** | Coming soon | ⏳ |
 
 ---
@@ -41,6 +45,7 @@ Each assignment is self-contained and includes its own source code, documentatio
 - FastAPI
 - Pydantic
 - Uvicorn
+- SQLite
 - Git & GitHub
 
 ---
