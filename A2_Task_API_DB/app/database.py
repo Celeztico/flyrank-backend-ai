@@ -55,6 +55,7 @@ def reset_database():
         cur.execute("DELETE FROM tasks")
         cur.execute("DELETE FROM sqlite_sequence WHERE NAME='tasks'")
         conn.commit()
-        initialise_database()
     finally:
         conn.close()
+        
+    initialise_database()
