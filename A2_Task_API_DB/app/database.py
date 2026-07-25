@@ -43,3 +43,18 @@ def initialise_database():
         conn.commit()
     finally:
         conn.close()
+
+def reset_database():
+    """
+    Resets the database to its initial development state
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("DELETE FROM tasks")
+        cur.execute("DELETE FROM sqlite_sequence WHERE NAME='tasks'")
+        conn.commit()
+        initialise_database()
+    finally:
+        conn.close()

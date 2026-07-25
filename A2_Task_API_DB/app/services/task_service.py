@@ -1,6 +1,5 @@
 from fastapi import HTTPException
-from app.data import tasks, initial_tasks
-from app.database import get_connection
+from app.database import get_connection , reset_database
 from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 
 def get_tasks(
@@ -62,32 +61,47 @@ def get_task(task_id: int) -> Task:
     Return task by id
     """
 
-    for task in tasks:
-        if task.id == task_id:
-            return task
-    raise HTTPException(
-        status_code=404,
-        detail={
-            "error": f"Task with id {task_id} not found"
-        }
-    )
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+        row = cur.fetchone()
+
+        if row is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": f"Task with id {task_id} not found"
+                }
+            )
+        return Task(
+            id=row["id"],
+            title=row["title"],
+            done=bool(row["done"])
+        )
+    finally:
+        conn.close()
 
 def create_task(task_create: TaskCreate) -> Task:
     """
-    Create a new task, assign it the next available ID,
-store it in memory, and return it.
+    Create a new task, store it in database, and return the created task.
     """
-    next_id = max((task.id for task in tasks), default=0)+1
+    conn = get_connection()
+    cur = conn.cursor()
 
-    new_task = Task(
-        id=next_id,
-        title=task_create.title,
-        done=False
-    )
+    try:
+        cur.execute("INSERT INTO tasks(title, done) VALUES(?, ?)", (task_create.title, 0))
+        next_id = cur.lastrowid
+        conn.commit()
 
-    tasks.append(new_task)
-
-    return new_task
+        return Task(
+            id=next_id,
+            title=task_create.title,
+            done=False
+        )
+    finally:
+        conn.close()
 
 def update_task(
         task_id: int,
@@ -96,29 +110,53 @@ def update_task(
     """
     Update existing task of given id and return it
     """
-    task = get_task(task_id)
+    conn = get_connection()
+    cur = conn.cursor()
 
-    task.title = task_update.title
+    try:
+        get_task(task_id)
 
-    task.done=task_update.done
+        cur.execute("UPDATE tasks SET title = ?, done = ? WHERE id = ?", (task_update.title, int(task_update.done), task_id))
+        conn.commit()
 
-    return task
+        return Task(
+            id=task_id,
+            title=task_update.title,
+            done=task_update.done
+        )
+    finally:
+        conn.close()
 
 def delete_task(task_id: int) -> None:
-    task = get_task(task_id)
-    tasks.remove(task)
-    return
+    """
+    Delete a task of given id
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        get_task(task_id)
+        cur.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
 def get_stats() -> TaskStats:
-    total = len(tasks)
-    done = len([ task for task in tasks if task.done ])
-    return TaskStats(
-        total=total,
-        done=done,
-        open= total - done,
-    )
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT COUNT(*) AS total, COALESCE(SUM(done),0) AS done FROM tasks")
+        row = cur.fetchone()
+
+        return TaskStats(
+            total=row["total"],
+            done=row["done"],
+            open= row["total"] - row["done"],
+        )
+    finally:
+        conn.close()
 
 def reset_tasks():
-    tasks.clear()
-    tasks.extend(initial_tasks)
-    return tasks
+    reset_database()
+    return get_tasks()

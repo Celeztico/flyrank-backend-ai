@@ -47,8 +47,8 @@ def get_stats():
 @router.post(
     "/reset",
     response_model=list[Task],
-    summary="Create a task",
-    description="Creates a new task and returns it",
+    summary="Resets the database",
+    description="Resets the database to initial state",
 )
 def reset_tasks():
     return task_service.reset_tasks()
