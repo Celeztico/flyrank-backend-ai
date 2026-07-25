@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from app.data import tasks, initial_tasks
+from app.database import get_connection
 from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 
 def get_tasks(
@@ -12,20 +13,49 @@ def get_tasks(
     Return tasks, optionally filtered by completion status,
     search query, and paginated using limit/offset.
     """
-    filtered_tasks = tasks
-    
-    if done is not None:
-        filtered_tasks = [ task for task in filtered_tasks if task.done == done ]
-    
-    if search is not None:
-        filtered_tasks = [ task for task in filtered_tasks if search.lower() in task.title.lower() ]
-    
-    if limit is not None:
-        filtered_tasks = filtered_tasks[offset:offset+limit]
-    else:
-        filtered_tasks = filtered_tasks[offset:]
-    
-    return filtered_tasks
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        query = "SELECT * FROM tasks"
+        conditions = []
+        parameters = []
+
+        # building filtering conditions
+        if done is not None:
+            conditions.append("done = ?")
+            parameters.append(int(done))
+        
+        if search is not None:
+            conditions.append("title LIKE ?")
+            parameters.append(f"%{search}%")
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        # building pagination conditions
+        query += " ORDER BY ID ASC LIMIT ? OFFSET ?"
+        if limit is not None:
+            parameters.append(limit)
+        else:
+            parameters.append(-1)
+
+        parameters.append(offset)
+
+        print(query)
+        cur.execute(query, parameters)
+
+        rows = cur.fetchall()
+        
+        return [
+            Task(
+                id=row["id"],
+                title=row["title"],
+                done=bool(row["done"])
+            ) for row in rows
+        ]
+    finally:
+        conn.close()
 
 def get_task(task_id: int) -> Task:
     """
