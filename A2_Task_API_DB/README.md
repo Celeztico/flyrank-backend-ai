@@ -1,6 +1,6 @@
 # Task API
 
-**FlyRank Backend Internship - Assignment 1**
+**FlyRank Backend Internship - Assignment 2**
 
 ---
 
@@ -8,9 +8,10 @@
 
 Task API is a simple RESTful API built using **Python** and **FastAPI** for the FlyRank Backend Internship Assignment.
 
-It provides a RESTful interface for managing tasks using an **in-memory data store**, supporting full CRUD operations along with filtering, searching, pagination, task statistics, and resetting the seeded task list.
+It provides a RESTful interface for managing tasks using a **SQLite database**, supporting full CRUD operations along with filtering, searching, pagination, task statistics, and resetting the seeded task list.
 
-Since no database is used, all data exists only while the server is running.
+The application automatically creates and initializes the database on startup if it does not already exist, ensuring data persists across server restarts.
+
 
 ---
 
@@ -39,6 +40,8 @@ pip install -r requirements.txt
 ```
 
 ### 3. Run the application
+
+On first startup, the application automatically creates a `tasks.db` SQLite database and seeds it with initial tasks if the database is empty.
 
 ```bash
 uvicorn app.main:app --reload
@@ -131,7 +134,7 @@ app/
 ├── routes/
 ├── services/
 ├── utils/
-├── data.py
+├── database.py
 └── main.py
 ```
 
@@ -140,24 +143,34 @@ The project follows a layered architecture:
 - **routes/** – HTTP endpoints and request handling
 - **services/** – Business logic
 - **models/** – Pydantic request/response models
-- **data.py** – In-memory task storage
+- **database.py** – SQLite database initialization and connection management
 - **utils/** – Shared helper functions (validation)
 
 This separation keeps routing, validation and business logic independent and easier to maintain.
 
 ---
 
-## In-Memory Persistence (Mortality Experiment)
+## SQLite Persistence
 
-Tasks are stored in an in-memory Python list.
+The application uses **SQLite** as its persistence layer.
 
-This means:
+On application startup:
 
-- Tasks remain available while the FastAPI application is running.
-- Restarting the server restores the original seeded task list.
-- Any tasks created, updated or deleted during runtime are lost after the application stops.
+- `tasks.db` is created automatically if it does not already exist.
+- The `tasks` table is created automatically if required.
+- Initial seed tasks are inserted only when the table is empty.
 
-This demonstrates the limitation of in-memory storage and highlights why persistent storage (such as a database) is required for real-world applications.
+Unlike the previous in-memory implementation, tasks now persist across server restarts, providing durable storage without requiring an external database server.
+
+---
+
+## Database
+
+The project uses Python's built-in `sqlite3` module.
+
+Task data is stored in the automatically created `tasks.db` file located in the project root.
+
+The API performs all CRUD operations directly against the SQLite database using parameterized SQL queries to safely handle user input.
 
 ---
 
@@ -165,9 +178,34 @@ This demonstrates the limitation of in-memory storage and highlights why persist
 
 Beyond the core CRUD functionality, the API also includes:
 
+- SQLite-based persistent storage
+- Automatic database initialization and seeding
 - Task filtering using `done`
 - Case-insensitive task searching
 - Pagination using `limit` and `offset`
 - Task statistics endpoint
 - Reset endpoint to restore seeded tasks
 - Request validation with custom error responses
+- Interactive Swagger/OpenAPI documentation
+
+---
+
+## Assignment 2 Changes
+
+Compared to Assignment 1, the following improvements were made:
+
+- Replaced the in-memory task list with a SQLite database.
+- Preserved the existing REST API contract and endpoint behavior.
+- Moved filtering, searching, pagination and statistics into SQL queries.
+- Added automatic database creation and initialization on application startup.
+- Implemented persistent storage across server restarts.
+
+---
+## Inspecting the Database
+
+The SQLite database can be inspected using any SQLite-compatible viewer such as:
+
+- DB Browser for SQLite
+- VS Code SQLite extensions
+
+This makes it possible to verify database contents after performing CRUD operations through the API.
