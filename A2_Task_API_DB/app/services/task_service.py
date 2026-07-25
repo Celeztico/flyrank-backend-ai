@@ -33,7 +33,7 @@ def get_tasks(
             query += " WHERE " + " AND ".join(conditions)
 
         # building pagination conditions
-        query += " ORDER BY ID ASC LIMIT ? OFFSET ?"
+        query += " ORDER BY id ASC LIMIT ? OFFSET ?"
         if limit is not None:
             parameters.append(limit)
         else:
@@ -41,7 +41,6 @@ def get_tasks(
 
         parameters.append(offset)
 
-        print(query)
         cur.execute(query, parameters)
 
         rows = cur.fetchall()
@@ -91,7 +90,10 @@ def create_task(task_create: TaskCreate) -> Task:
     cur = conn.cursor()
 
     try:
-        cur.execute("INSERT INTO tasks(title, done) VALUES(?, ?)", (task_create.title, 0))
+        cur.execute(
+            "INSERT INTO tasks(title, done) VALUES(?, ?)", 
+            (task_create.title, 0),
+        )
         next_id = cur.lastrowid
         conn.commit()
 
@@ -116,7 +118,14 @@ def update_task(
     try:
         get_task(task_id)
 
-        cur.execute("UPDATE tasks SET title = ?, done = ? WHERE id = ?", (task_update.title, int(task_update.done), task_id))
+        cur.execute(
+            "UPDATE tasks SET title = ?, done = ? WHERE id = ?", 
+            (
+                task_update.title, 
+                int(task_update.done), 
+                task_id
+            ),
+        )
         conn.commit()
 
         return Task(
@@ -142,6 +151,9 @@ def delete_task(task_id: int) -> None:
         conn.close()
 
 def get_stats() -> TaskStats:
+    """
+    Return statistics for all tasks.
+    """
     conn = get_connection()
     cur = conn.cursor()
 
@@ -152,11 +164,15 @@ def get_stats() -> TaskStats:
         return TaskStats(
             total=row["total"],
             done=row["done"],
-            open= row["total"] - row["done"],
+            open=row["total"] - row["done"],
         )
     finally:
         conn.close()
 
-def reset_tasks():
+def reset_tasks() -> list[Task]:
+    """
+    Reset the database to the initial seeded state
+    and return the seeded tasks.
+    """
     reset_database()
     return get_tasks()
