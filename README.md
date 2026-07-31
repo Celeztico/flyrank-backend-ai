@@ -2,7 +2,7 @@
 
 This repository contains my solutions for the **FlyRank Backend Internship** weekly assignments.
 
-The goal of these assignments is to build backend systems while following clean architecture, REST API design principles, and industry-standard development practices using **Python** and **FastAPI**.
+The goal of these assignments is to progressively build backend systems while following layered architecture, REST API design principles, database integration, containerization, and industry-standard development practices using Python and FastAPI.
 
 ---
 
@@ -22,6 +22,14 @@ The goal of these assignments is to build backend systems while following clean 
 │   ├── README.md
 │   └── requirements.txt
 │
+├── A3_Task_API_Postgres/
+│   ├── app/
+│   ├── images/
+│   ├── Dockerfile
+│   ├── compose.yaml
+│   ├── README.md
+│   └── requirements.txt
+│
 └── README.md
 ```
 
@@ -35,7 +43,8 @@ Each assignment is self-contained and includes its own source code, documentatio
 |------------|-------------|--------|
 | **A1 - Task API** | RESTful CRUD Task Management API built with FastAPI using an in-memory data store. | ✅ Completed |
 | **A2 - Task API with DB** | RESTful CRUD Task Management API built with FastAPI migrated to use an sqlite database. | ✅ Completed |
-| **A3 - ...** | Coming soon | ⏳ |
+| **A3 - Task API with PostgreSQL & Docker** | Migrated the Task API to PostgreSQL and containerized the application using Docker and Docker Compose. | ✅ Completed |
+| **A4 - ...** | Coming soon | ⏳ |
 
 ---
 
@@ -46,6 +55,10 @@ Each assignment is self-contained and includes its own source code, documentatio
 - Pydantic
 - Uvicorn
 - SQLite
+- PostgreSQL
+- psycopg3
+- Docker
+- Docker Compose
 - Git & GitHub
 
 ---
@@ -55,10 +68,13 @@ Each assignment is self-contained and includes its own source code, documentatio
 Throughout these assignments I aim to follow common backend development practices, including:
 
 - Modular project structure
-- Separation of concerns (Routes → Services → Models)
+- Layered architecture (Routes → Services → Models)
 - RESTful API design
 - Request validation
 - Proper HTTP status codes
+- SQL-based persistence
+- Dockerized deployment
+- Environment-based configuration
 - Swagger/OpenAPI documentation
 - Meaningful Git commits
 
@@ -69,7 +85,7 @@ Throughout these assignments I aim to follow common backend development practice
 Each assignment contains its own README with setup instructions.
 
 For example:
-
+**Assignment 1**
 ```bash
 cd A1_Task_API
 pip install -r requirements.txt
