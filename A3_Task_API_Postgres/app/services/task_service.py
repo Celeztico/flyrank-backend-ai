@@ -36,7 +36,7 @@ def get_tasks(
         query += " ORDER BY id ASC"
         if limit is not None:
             query += " LIMIT %s OFFSET %s"
-            parameters.extent([limit, offset])
+            parameters.extend([limit, offset])
         else:
             query += " LIMIT ALL OFFSET %s"
             parameters.append(offset)
