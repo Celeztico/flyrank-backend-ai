@@ -1,6 +1,6 @@
 # Task API
 
-**FlyRank Backend Internship - Assignment 2**
+**FlyRank Backend Internship - Assignment 3**
 
 ---
 
@@ -8,16 +8,77 @@
 
 Task API is a simple RESTful API built using **Python** and **FastAPI** for the FlyRank Backend Internship Assignment.
 
-It provides a RESTful interface for managing tasks using a **SQLite database**, supporting full CRUD operations along with filtering, searching, pagination, task statistics, and resetting the seeded task list.
+It provides a RESTful interface for managing tasks using a **PostgreSQL database**, supporting full CRUD operations along with filtering, searching, pagination, task statistics, and resetting the seeded task list.
 
-The application automatically creates and initializes the database on startup if it does not already exist, ensuring data persists across server restarts.
+The application is fully containerized using **Docker** and **Docker Compose**. On startup, it automatically creates the required database schema and seeds the initial tasks if the database is empty. Task data is stored in a persistent Docker volume, allowing it to survive container restarts.
 
+
+---
+
+## Tech Stack
+
+- Python 3.13
+- FastAPI
+- PostgreSQL
+- psycopg3
+- Docker
+- Docker Compose
 
 ---
 
 ## Installation & Running
 
-### 1. Create a virtual environment (recommended)
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd <repository>/A3_Task_API_Postgres
+```
+
+### 2. Configure environment variables
+
+Copy `.env.example` to `.env` and update the values if required:
+```env
+POSTGRES_DB=tasksdb
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+```
+
+### 3. Build and start the application
+
+On first startup, PostgreSQL initializes the tasksdb database, while the application automatically creates the required tables and seeds the initial tasks if the database is empty.
+
+```bash
+docker compose up --build
+```
+
+The API will be available at:
+
+```
+http://localhost:8000
+```
+
+Interactive Swagger documentation:
+
+```
+http://localhost:8000/docs
+```
+
+To stop the application:
+```bash
+docker compose down
+```
+To remove containers and database volume:
+```bash
+docker compose down -v
+```
+
+---
+
+> **Development (without Docker)**
+
+Create a virtual environment
 
 **Windows**
 
@@ -32,32 +93,25 @@ python -m venv .venv
 python3 -m venv .venv
 source .venv/bin/activate
 ```
-
-### 2. Install dependencies
+### Install dependencies and run
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 3. Run the application
-
-On first startup, the application automatically creates a `tasks.db` SQLite database and seeds it with initial tasks if the database is empty.
-
-```bash
 uvicorn app.main:app --reload
 ```
+---
 
-The API will be available at:
+## Environment Variables
 
-```
-http://localhost:8000
-```
 
-Interactive Swagger documentation:
+| Variable | Description |
+|----------|-------------|
+| POSTGRES_DB | Database name |
+| POSTGRES_USER | Database username |
+| POSTGRES_PASSWORD | Database password |
+| POSTGRES_HOST | PostgreSQL host |
+| POSTGRES_PORT | PostgreSQL port |
 
-```
-http://localhost:8000/docs
-```
 
 ---
 
@@ -129,13 +183,20 @@ The API is fully documented using FastAPI's automatically generated Swagger UI.
 ## Project Structure
 
 ```text
-app/
-├── models/
-├── routes/
-├── services/
-├── utils/
-├── database.py
-└── main.py
+├── app/
+|   ├── models/
+|   ├── routes/
+|   ├── services/
+|   ├── utils/
+|   ├── database.py
+|   └── main.py
+├── images/
+├── Dockerfile
+├── compose.yaml
+├── requirements.txt
+├── .dockerignore
+├── .env.example
+└── README.md
 ```
 
 The project follows a layered architecture:
@@ -143,34 +204,47 @@ The project follows a layered architecture:
 - **routes/** – HTTP endpoints and request handling
 - **services/** – Business logic
 - **models/** – Pydantic request/response models
-- **database.py** – SQLite database initialization and connection management
+- **database.py** – PostgreSQL connection management and database initialization
 - **utils/** – Shared helper functions (validation)
 
 This separation keeps routing, validation and business logic independent and easier to maintain.
 
 ---
 
-## SQLite Persistence
+## PostgreSQL Persistence
 
-The application uses **SQLite** as its persistence layer.
+The application uses **PostgreSQL** as its persistence layer.
 
 On application startup:
 
-- `tasks.db` is created automatically if it does not already exist.
-- The `tasks` table is created automatically if required.
+- The `tasks` table is created automatically if it does not already exist.
 - Initial seed tasks are inserted only when the table is empty.
+- Existing data is preserved across container restarts through a Docker volume.
 
-Unlike the previous in-memory implementation, tasks now persist across server restarts, providing durable storage without requiring an external database server.
+Unlike the previous SQLite implementation, the database now runs as a dedicated PostgreSQL service managed by Docker Compose.
 
 ---
 
 ## Database
 
-The project uses Python's built-in `sqlite3` module.
+The project uses **PostgreSQL** together with the `psycopg3` driver.
 
-Task data is stored in the automatically created `tasks.db` file located in the project root.
+All CRUD operations are performed using parameterized SQL queries to safely handle user input.
 
-The API performs all CRUD operations directly against the SQLite database using parameterized SQL queries to safely handle user input.
+Database connection settings are configured through environment variables, making it easy to deploy the application across different environments without changing the application code.
+
+---
+
+## Docker
+
+The application consists of two Docker containers managed by Docker Compose:
+
+- **api** – FastAPI application
+- **db** – PostgreSQL database
+
+Docker Compose automatically creates an isolated network allowing the FastAPI application to communicate with the PostgreSQL container using the configured service name.
+
+The services communicate over Docker's internal network, while a named Docker volume is used to persist database data across container restarts.
 
 ---
 
@@ -178,7 +252,10 @@ The API performs all CRUD operations directly against the SQLite database using 
 
 Beyond the core CRUD functionality, the API also includes:
 
-- SQLite-based persistent storage
+- PostgreSQL-based persistent storage
+- Dockerized application deployment
+- Docker Compose orchestration
+- Environment-based configuration
 - Automatic database initialization and seeding
 - Task filtering using `done`
 - Case-insensitive task searching
@@ -190,22 +267,34 @@ Beyond the core CRUD functionality, the API also includes:
 
 ---
 
-## Assignment 2 Changes
+## Assignment 3 Changes
 
-Compared to Assignment 1, the following improvements were made:
+Compared to Assignment 2, the following improvements were made:
 
-- Replaced the in-memory task list with a SQLite database.
+- Migrated the persistence layer from SQLite to PostgreSQL.
+- Replaced the `sqlite3` module with the `psycopg3` PostgreSQL driver.
+- Externalized database configuration using environment variables.
+- Containerized the FastAPI application using Docker.
+- Added Docker Compose for multi-container orchestration.
+- Configured persistent PostgreSQL storage using Docker volumes.
 - Preserved the existing REST API contract and endpoint behavior.
-- Moved filtering, searching, pagination and statistics into SQL queries.
-- Added automatic database creation and initialization on application startup.
-- Implemented persistent storage across server restarts.
 
 ---
 ## Inspecting the Database
 
-The SQLite database can be inspected using any SQLite-compatible viewer such as:
+The PostgreSQL database can be inspected using tools such as:
 
-- DB Browser for SQLite
-- VS Code SQLite extensions
+- psql
+- pgAdmin
+- VS Code PostgreSQL extensions
 
-This makes it possible to verify database contents after performing CRUD operations through the API.
+The running PostgreSQL container can also be accessed directly using:
+
+```bash
+docker exec -it taskdb psql -U postgres -d tasksdb
+```
+After entering the PostgreSQL shell, common commands include:
+```sql
+\dt
+SELECT * FROM tasks;
+```
