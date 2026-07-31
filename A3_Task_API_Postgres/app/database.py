@@ -1,5 +1,6 @@
 import os
 import psycopg
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,14 +12,14 @@ DB_HOST = os.getenv("POSTGRES_HOST")
 DB_PORT = os.getenv("POSTGRES_PORT")
 
 INITIAL_TASKS = [
-    ("Learn FastAPI", 0),
-    ("Build Task API", 0),
-    ("Test CRUD endpoints", 1),
+    ("Learn FastAPI", False),
+    ("Build Task API", False),
+    ("Test CRUD endpoints", True),
 ]
 
 def get_connection() -> psycopg.Connection:
     """
-    Creates and returns a connection to the SQLite DB
+    Creates and returns a connection to the PostgreSQL DB
     """
     return psycopg.connect(
         dbname=DB_NAME,
@@ -26,6 +27,7 @@ def get_connection() -> psycopg.Connection:
         password=DB_PASSWORD,
         host=DB_HOST,
         port=DB_PORT,
+        row_factory=dict_row,
     )
 
 def initialise_database():
@@ -43,8 +45,8 @@ def initialise_database():
             done BOOLEAN NOT NULL
         )
         """)
-        cur.execute("SELECT COUNT(*) FROM tasks")
-        task_count = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) AS count FROM tasks")
+        task_count = cur.fetchone()["count"]
         if task_count == 0:
             cur.executemany(
                 "INSERT INTO tasks(title, done) VALUES (%s, %s)",
@@ -62,7 +64,6 @@ def reset_database():
     cur = conn.cursor()
 
     try:
-        cur.execute("DELETE FROM tasks")
         cur.execute("TRUNCATE TABLE tasks RESTART IDENTITY")
         conn.commit()
     finally:
