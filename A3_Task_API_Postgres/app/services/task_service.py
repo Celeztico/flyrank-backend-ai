@@ -23,7 +23,7 @@ def get_tasks(
         # building filtering conditions
         if done is not None:
             conditions.append("done = %s")
-            parameters.append(int(done))
+            parameters.append(done)
         
         if search is not None:
             conditions.append("title ILIKE %s")
