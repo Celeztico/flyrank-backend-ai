@@ -22,24 +22,24 @@ def get_tasks(
 
         # building filtering conditions
         if done is not None:
-            conditions.append("done = ?")
-            parameters.append(int(done))
+            conditions.append("done = %s")
+            parameters.append(done)
         
         if search is not None:
-            conditions.append("title LIKE ?")
+            conditions.append("title ILIKE %s")
             parameters.append(f"%{search}%")
 
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
 
         # building pagination conditions
-        query += " ORDER BY id ASC LIMIT ? OFFSET ?"
+        query += " ORDER BY id ASC"
         if limit is not None:
-            parameters.append(limit)
+            query += " LIMIT %s OFFSET %s"
+            parameters.extend([limit, offset])
         else:
-            parameters.append(-1)
-
-        parameters.append(offset)
+            query += " LIMIT ALL OFFSET %s"
+            parameters.append(offset)
 
         cur.execute(query, parameters)
 
@@ -64,7 +64,7 @@ def get_task(task_id: int) -> Task:
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+        cur.execute("SELECT * FROM tasks WHERE id = %s", (task_id,))
         row = cur.fetchone()
 
         if row is None:
@@ -91,16 +91,16 @@ def create_task(task_create: TaskCreate) -> Task:
 
     try:
         cur.execute(
-            "INSERT INTO tasks(title, done) VALUES(?, ?)", 
-            (task_create.title, 0),
+            "INSERT INTO tasks(title, done) VALUES(%s, %s) RETURNING *", 
+            (task_create.title, False),
         )
-        next_id = cur.lastrowid
+        row = cur.fetchone()
         conn.commit()
 
         return Task(
-            id=next_id,
-            title=task_create.title,
-            done=False
+            id=row["id"],
+            title=row["title"],
+            done=row["done"]
         )
     finally:
         conn.close()
@@ -119,10 +119,10 @@ def update_task(
         get_task(task_id)
 
         cur.execute(
-            "UPDATE tasks SET title = ?, done = ? WHERE id = ?", 
+            "UPDATE tasks SET title = %s, done = %s WHERE id = %s", 
             (
                 task_update.title, 
-                int(task_update.done), 
+                task_update.done, 
                 task_id
             ),
         )
@@ -145,7 +145,7 @@ def delete_task(task_id: int) -> None:
 
     try:
         get_task(task_id)
-        cur.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        cur.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
         conn.commit()
     finally:
         conn.close()
@@ -158,7 +158,7 @@ def get_stats() -> TaskStats:
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT COUNT(*) AS total, COALESCE(SUM(done),0) AS done FROM tasks")
+        cur.execute("SELECT COUNT(*) AS total, COUNT(*) FILTER (where done = TRUE) AS done FROM tasks")
         row = cur.fetchone()
 
         return TaskStats(

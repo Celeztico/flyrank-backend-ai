@@ -1,22 +1,34 @@
-import sqlite3
-from  pathlib import Path
+import os
+import psycopg
+from psycopg.rows import dict_row
+from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATABASE_PATH = BASE_DIR / "tasks.db"
+load_dotenv()
+
+DB_NAME = os.getenv("POSTGRES_DB")
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB_HOST = os.getenv("POSTGRES_HOST")
+DB_PORT = os.getenv("POSTGRES_PORT")
 
 INITIAL_TASKS = [
-    ("Learn FastAPI", 0),
-    ("Build Task API", 0),
-    ("Test CRUD endpoints", 1),
+    ("Learn FastAPI", False),
+    ("Build Task API", False),
+    ("Test CRUD endpoints", True),
 ]
 
-def get_connection() -> sqlite3.Connection:
+def get_connection() -> psycopg.Connection:
     """
-    Creates and returns a connection to the SQLite DB
+    Creates and returns a connection to the PostgreSQL DB
     """
-    connection = sqlite3.connect(DATABASE_PATH)
-    connection.row_factory = sqlite3.Row
-    return connection
+    return psycopg.connect(
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT,
+        row_factory=dict_row,
+    )
 
 def initialise_database():
     """
@@ -28,17 +40,17 @@ def initialise_database():
     try:
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
-            done INTEGER NOT NULL
+            done BOOLEAN NOT NULL
         )
         """)
-        cur.execute("SELECT COUNT(*) FROM tasks")
-        task_count = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) AS count FROM tasks")
+        task_count = cur.fetchone()["count"]
         if task_count == 0:
             cur.executemany(
-                "INSERT INTO tasks(title, done) VALUES (?, ?)",
-                INITIAL_TASKS
+                "INSERT INTO tasks(title, done) VALUES (%s, %s)",
+                INITIAL_TASKS,
             )
         conn.commit()
     finally:
@@ -52,8 +64,7 @@ def reset_database():
     cur = conn.cursor()
 
     try:
-        cur.execute("DELETE FROM tasks")
-        cur.execute("DELETE FROM sqlite_sequence WHERE NAME='tasks'")
+        cur.execute("TRUNCATE TABLE tasks RESTART IDENTITY")
         conn.commit()
     finally:
         conn.close()
