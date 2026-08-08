@@ -1,15 +1,13 @@
 import os
 import psycopg
 from psycopg.rows import dict_row
-from dotenv import load_dotenv
-
-load_dotenv()
-
-DB_NAME = os.getenv("POSTGRES_DB")
-DB_USER = os.getenv("POSTGRES_USER")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-DB_HOST = os.getenv("POSTGRES_HOST")
-DB_PORT = os.getenv("POSTGRES_PORT")
+from app.config import (
+    POSTGRES_DB,
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_HOST,
+    POSTGRES_PORT,
+)
 
 INITIAL_TASKS = [
     ("Learn FastAPI", False),
@@ -22,11 +20,11 @@ def get_connection() -> psycopg.Connection:
     Creates and returns a connection to the PostgreSQL DB
     """
     return psycopg.connect(
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=DB_PORT,
+        dbname=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+        host=POSTGRES_HOST,
+        port=POSTGRES_PORT,
         row_factory=dict_row,
     )
 
