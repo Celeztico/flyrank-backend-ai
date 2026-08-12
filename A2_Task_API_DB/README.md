@@ -209,3 +209,9 @@ The SQLite database can be inspected using any SQLite-compatible viewer such as:
 - VS Code SQLite extensions
 
 This makes it possible to verify database contents after performing CRUD operations through the API.
+
+Sample Query used from Stage 4
+![Sample Query](images/samplequery.png)
+
+Database viewed using DBbrowser
+![Database](images/dbbrowser.png)
