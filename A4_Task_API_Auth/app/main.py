@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from app.routes.tasks import router as task_router
+from app.auth.router import router as auth_router
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from app.utils import validation
@@ -32,4 +33,5 @@ def root():
 def health():
     return {"status":"ok"}
 
+app.include_router(auth_router)
 app.include_router(task_router)
