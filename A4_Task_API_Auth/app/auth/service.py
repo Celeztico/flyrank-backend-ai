@@ -15,3 +15,7 @@ def login_user(email: str, password: str):
             "password": password,
         }
     )
+
+def verify_access_token(access_token: str):
+    return supabase.auth.get_user(access_token)
+

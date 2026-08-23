@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from app.auth.service import verify_access_token
+from supabase_auth.errors import AuthApiError
 
 router = APIRouter(prefix="/protected", tags=["Protected"])
 
@@ -9,18 +11,32 @@ security = HTTPBearer()
 def profile(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
-    token = credentials.credentials
+    try:
+        response = verify_access_token(credentials.credentials)
+    except AuthApiError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
 
+    user = response.user
+    
     return {
-        "message": "Protected profile endpoint",
-        "authenticated": True,
+        "id": user.id,
+        "email": user.email,
     }
 
 @router.get("/dashboard")
 def dashboard(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
-    token = credentials.credentials
+    try:
+        verify_access_token(credentials.credentials)
+    except AuthApiError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
 
     return {
         "message": "Protected dashboard endpoint",
