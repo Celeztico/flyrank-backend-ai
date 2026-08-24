@@ -375,7 +375,7 @@ Authentication data is managed by Supabase rather than stored in the application
 
 ## Docker
 
-The application consists of two Docker containers managed by Docker Compose:
+The application consists of two Docker services managed by Docker Compose:
 
 - **api** – FastAPI application
 - **db** – PostgreSQL database
