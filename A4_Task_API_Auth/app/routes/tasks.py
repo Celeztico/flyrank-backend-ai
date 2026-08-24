@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from app.models.task import Task, TaskCreate, TaskUpdate, TaskStats
 from app.services import task_service
+from app.auth.dependencies import get_current_user
 
 router = APIRouter(
     prefix="/tasks",
     tags=["Tasks"],
+    dependencies=[Depends(get_current_user)]
 )
 
 @router.get(

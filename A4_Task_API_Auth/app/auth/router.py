@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from supabase import AuthApiError, AuthWeakPasswordError
 
 from app.auth.schemas import AuthRequest
-from app.auth.service import signup_user, login_user
+from app.auth.service import signup_user, login_user, logout_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -60,4 +60,11 @@ def login(request: AuthRequest):
     return {
         "access_token": response.session.access_token,
         "refresh_token": response.session.refresh_token,
+    }
+
+@router.post("/logout")
+def logout():
+    logout_user()
+    return{
+        "message": "Logged out successfully",
     }
