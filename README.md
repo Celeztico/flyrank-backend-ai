@@ -29,6 +29,14 @@ The goal of these assignments is to progressively build backend systems while fo
 │   ├── compose.yaml
 │   ├── README.md
 │   └── requirements.txt
+|
+├── A4_Task_API_Auth/
+│   ├── app/
+│   ├── images/
+│   ├── Dockerfile
+│   ├── compose.yaml
+│   ├── README.md
+│   └── requirements.txt
 │
 └── README.md
 ```
@@ -44,7 +52,8 @@ Each assignment is self-contained and includes its own source code, documentatio
 | **A1 - Task API** | RESTful CRUD Task Management API built with FastAPI using an in-memory data store. | ✅ Completed |
 | **A2 - Task API with DB** | RESTful CRUD Task Management API built with FastAPI migrated to use an sqlite database. | ✅ Completed |
 | **A3 - Task API with PostgreSQL & Docker** | Migrated the Task API to PostgreSQL and containerized the application using Docker and Docker Compose. | ✅ Completed |
-| **A4 - ...** | Coming soon | ⏳ |
+| **A4 - Task API with Supabase Auth** | Updated the Task API to use Supabase Authentication and JWT tokens | ✅ Completed |
+| **A5 - ...** | Coming soon | ⏳ |
 
 ---
 
