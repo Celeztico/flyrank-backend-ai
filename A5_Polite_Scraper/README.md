@@ -57,3 +57,19 @@ This project is intentionally limited to the public Books to Scrape
 practice sandbox.
 
 I will not reuse this code on another site without checking its rules and terms first.
+
+## Fetching and caching
+
+The scraper uses Python Requests for HTTP fetching.
+
+Each real request:
+
+- uses an identifying User-Agent
+- has a 10-second timeout
+- checks the HTTP status before accepting the response
+- is separated from the previous real request by at least 500 ms
+
+Successful HTML responses are cached locally in `cache/`.
+
+Cached responses are reused on subsequent runs, avoiding unnecessary
+requests to the target website.
