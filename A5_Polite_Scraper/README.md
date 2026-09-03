@@ -73,3 +73,22 @@ Successful HTML responses are cached locally in `cache/`.
 
 Cached responses are reused on subsequent runs, avoiding unnecessary
 requests to the target website.
+
+## Catalogue discovery
+
+The scraper starts from the Books to Scrape catalogue and follows the
+catalogue's own `next` links.
+
+Only the first three catalogue pages are processed, matching the assignment
+scope.
+
+Book links are extracted from the product listing area and converted from
+relative URLs to absolute URLs using Python's `urljoin()`.
+
+Duplicate product URLs are removed before the detail-page extraction stage.
+
+The expected discovery result is:
+
+- catalogue pages: 3
+- discovered book URLs: 60
+- unique book URLs: 60
