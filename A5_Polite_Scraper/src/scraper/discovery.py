@@ -3,24 +3,40 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from scraper.fetcher import Fetcher
 
+@dataclass(frozen=True)
+class DiscoveredBook:
+    product_url: str
+    source_page: str
+
+
 @dataclass
 class DiscoveryResult:
     catalogue_pages: int
-    discovered_urls: list[str]
+    discovered_books: list[DiscoveredBook]
 
     @property
-    def unique_urls(self) -> list[str]:
-        return list(dict.fromkeys(self.discovered_urls))
+    def unique_books(self) -> list[DiscoveredBook]:
+        seen = set()
+        unique = []
+
+        for book in self.discovered_books:
+            if book.product_url in seen:
+                continue
+
+            seen.add(book.product_url)
+            unique.append(book)
+
+        return unique
 
 
 class CatalogueDiscovery:
     def __init__(self, fetcher: Fetcher):
         self.fetcher = fetcher
 
-    def extract_book_urls(self, html: str, page_url: str) -> list[str]:
+    def extract_book_urls(self, html: str, page_url: str) -> list[DiscoveredBook]:
         soup = BeautifulSoup(html, "html.parser")
 
-        book_urls = []
+        books = []
 
         for article in soup.select("article.product_pod"):
             link = article.select_one("h3 a")
@@ -33,9 +49,16 @@ class CatalogueDiscovery:
             if not href:
                 continue
 
-            book_urls.append(urljoin(page_url, href))
+            product_url = urljoin(page_url, href)
 
-        return book_urls
+            books.append(
+                DiscoveredBook(
+                    product_url=product_url,
+                    source_page=page_url,
+                )
+            )
+
+        return books
 
     def find_next_page(self, html: str, page_url: str) -> str | None:
         soup = BeautifulSoup(html, "html.parser")
@@ -52,7 +75,7 @@ class CatalogueDiscovery:
 
         return urljoin(page_url, href)
 
-    def discover(self, start_url: str, max_pages: int = 3) -> list[str]:
+    def discover(self, start_url: str, max_pages: int = 3) -> DiscoveryResult:
         current_url = start_url
         all_book_urls = []
         catalogue_pages = 0
@@ -74,5 +97,5 @@ class CatalogueDiscovery:
 
         return DiscoveryResult(
             catalogue_pages=catalogue_pages,
-            discovered_urls=all_book_urls,
+            discovered_books=all_book_urls,
         )

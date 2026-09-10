@@ -92,3 +92,28 @@ The expected discovery result is:
 - catalogue pages: 3
 - discovered book URLs: 60
 - unique book URLs: 60
+
+## Raw record extraction
+
+For each discovered book URL, the scraper fetches the detail page using the
+same HTTP politeness rules as the catalogue pages.
+
+Each raw record contains:
+
+- `title`
+- `product_url`
+- `price_text`
+- `availability_text`
+- `rating_text`
+- `description`
+- `source_page`
+- `fetched_at`
+
+The raw price is intentionally retained as text at this stage. Numeric price
+normalization is performed during the validation/storage stage.
+
+Missing descriptions are represented as `null` rather than being inferred or
+invented.
+
+Detail pages are cached locally so subsequent development runs do not need to
+request the same pages again.
