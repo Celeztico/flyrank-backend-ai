@@ -38,6 +38,24 @@ The goal of these assignments is to progressively build backend systems while fo
 │   ├── README.md
 │   └── requirements.txt
 │
+├── A5_Polite_Scraper/
+│   ├── src/
+│   │   └── scraper/
+│   │       ├── fetcher.py
+│   │       ├── discovery.py
+│   │       ├── extractor.py
+│   │       ├── normalizer.py
+│   │       ├── schemas.py
+│   │       ├── change_detection.py
+│   │       ├── reporting.py
+│   │       ├── storage.py
+│   │       ├── config.py
+│   │       └── main.py
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── pyproject.toml
+│   └── .gitignore
+│
 └── README.md
 ```
 
@@ -53,7 +71,7 @@ Each assignment is self-contained and includes its own source code, documentatio
 | **A2 - Task API with DB** | RESTful CRUD Task Management API built with FastAPI migrated to use an sqlite database. | ✅ Completed |
 | **A3 - Task API with PostgreSQL & Docker** | Migrated the Task API to PostgreSQL and containerized the application using Docker and Docker Compose. | ✅ Completed |
 | **A4 - Task API with Supabase Auth** | Updated the Task API to use Supabase Authentication and JWT tokens | ✅ Completed |
-| **A5 - ...** | Coming soon | ⏳ |
+| **A5 - Polite Web Scraper** | Production-style web scraper with caching, validation, failure handling, and reporting. | ✅ Completed |
 
 ---
 
