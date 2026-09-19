@@ -5,14 +5,20 @@ from scraper.extractor import BookExtractor
 from scraper.normalizer import normalize_record
 from scraper.reporting import create_run_report
 from scraper.schemas import BookRecord
-from scraper.storage import write_json
-from scraper.config import BASE_URL, OUTPUT_DIR
+from scraper.change_detection import compare_records
+from scraper.storage import write_json, write_csv, read_json
+from scraper.config import BASE_URL, OUTPUT_DIR, PREVIOUS_BOOKS_FILE
 from datetime import datetime, timezone
 from pydantic import ValidationError
 
 def main():
     start_time = time.monotonic()
     started_at = datetime.now(timezone.utc).isoformat()
+
+    previous_records = read_json(
+        PREVIOUS_BOOKS_FILE,
+        default=[]
+    )
 
     fetcher = Fetcher()
     discovery = CatalogueDiscovery(fetcher)
@@ -72,6 +78,26 @@ def main():
         errors,
     )
 
+    write_csv(
+        OUTPUT_DIR / "books.csv",
+        valid_records,
+    )
+
+    changes = compare_records(
+        previous=previous_records,
+        current=valid_records,
+    )
+
+    write_json(
+        OUTPUT_DIR / "changes.json",
+        changes,
+    )
+
+    write_json(
+        PREVIOUS_BOOKS_FILE,
+        valid_records,
+    )
+
     finished_at = datetime.now(timezone.utc).isoformat()
     duration_seconds = (time.monotonic() - start_time)
 
@@ -97,6 +123,10 @@ def main():
     print(f"valid_records={len(valid_records)}")
     print(f"validation_errors={len(errors)}")   
     print(f"failed_pages={len(failed_pages)}")
+    print(f"new={len(changes['new'])}")
+    print(f"changed={len(changes['changed'])}")
+    print(f"unchanged={len(changes['unchanged'])}")
+    print(f"gone={len(changes['gone'])}")
 
 if __name__ == "__main__":
     main()

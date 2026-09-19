@@ -2,7 +2,13 @@ from urllib.parse import urljoin, urlparse
 
 
 def normalize_price(price_text: str) -> float:
-    cleaned = price_text.strip().replace("Â£", "").replace(",", "")
+    cleaned = (
+        price_text
+        .strip()
+        .replace("Â£", "")
+        .replace("£", "")
+        .replace(",", "")
+    )
 
     try:
         return float(cleaned)

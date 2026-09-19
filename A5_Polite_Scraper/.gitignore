@@ -11,6 +11,7 @@ venv/
 
 # Scraper runtime data
 cache/
+output/
 
 # IDE
 .vscode/

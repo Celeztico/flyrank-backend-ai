@@ -14,3 +14,4 @@ USER_AGENT = (
 
 CACHE_DIR = PROJECT_ROOT / "cache"
 OUTPUT_DIR = PROJECT_ROOT / "output"
+PREVIOUS_BOOKS_FILE = OUTPUT_DIR / "previous_books.json"
