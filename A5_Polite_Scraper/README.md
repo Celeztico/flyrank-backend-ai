@@ -141,3 +141,34 @@ Validation failures are written to:
 
 Records are identified by their canonical product URL, and each run
 rebuilds the output dataset rather than appending duplicate records.
+
+## Failure handling and run reporting
+
+The scraper isolates failures at the individual page level so that one
+unavailable detail page does not terminate the entire run.
+
+Timeouts and HTTP 5xx responses are retried once.
+
+HTTP 403 and 404 responses are not retried.
+
+A failed page is recorded in `output/run-report.json` with its URL,
+failure reason, and whether the failure was retryable.
+
+Each run reports:
+
+- catalogue pages processed
+- detail pages attempted
+- cache hits
+- valid records
+- validation errors
+- failed pages
+- run start/end timestamps
+- duration
+
+### Failure test
+
+A deliberately invalid Books to Scrape URL was used to verify that a single
+failed detail page does not terminate the scraper.
+
+The run completed with the remaining records intact and reported the failed
+page separately in `run-report.json`.
