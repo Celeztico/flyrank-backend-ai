@@ -117,3 +117,27 @@ invented.
 
 Detail pages are cached locally so subsequent development runs do not need to
 request the same pages again.
+
+## Normalization and validation
+
+Raw extracted records are normalized before storage.
+
+Normalization includes:
+
+- converting `price_text` such as `£51.77` into numeric `price_gbp`
+- ensuring URLs are absolute
+- trimming textual fields
+- preserving missing descriptions as `null`
+
+Normalized records are validated using Pydantic.
+
+Valid records are written to:
+
+`output/books.json`
+
+Validation failures are written to:
+
+`output/errors.json`
+
+Records are identified by their canonical product URL, and each run
+rebuilds the output dataset rather than appending duplicate records.

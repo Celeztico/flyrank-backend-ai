@@ -13,3 +13,4 @@ USER_AGENT = (
 )
 
 CACHE_DIR = PROJECT_ROOT / "cache"
+OUTPUT_DIR = PROJECT_ROOT / "output"
